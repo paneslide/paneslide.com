@@ -8,7 +8,7 @@ priority: 0.3
 ---
 **Last updated: {{UPDATED}}**
 
-By using PaneSlide (the website and game at paneslide.github.io and any future domain of ours) you agree to these terms. If you do not agree, please do not use the site.
+By using PaneSlide (the website and game at paneslide.com, formerly paneslide.github.io, and any future domain of ours) you agree to these terms. If you do not agree, please do not use the site.
 
 ## Using the game
 

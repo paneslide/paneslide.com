@@ -24,7 +24,7 @@
 "use strict";
 const fs = require("fs"), path = require("path"), cp = require("child_process");
 const ROOT = path.resolve(__dirname, "..");
-const SITE = "https://paneslide.github.io";
+const SITE = "https://paneslide.com";
 const d = new Date(), pad = n => String(n).padStart(2, "0");
 const DATE = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
 const OUT = path.resolve(process.argv[2] || "/workspace/paneslide-builds/crazygames");
@@ -45,6 +45,7 @@ function patch(s, from, to, what) {
 // ---- index.html ----
 function buildHtml() {
   let h = read("index.html");
+  h = h.replace(/\n?<script src="\/?js\/migrate\.js\?v=[^"]*"><\/script>/g, ""); // the move-from-github.io importer is website-only
   // head: a plain title + description; no canonical/og/twitter/JSON-LD (they describe the website), no PWA bits
   h = patch(h, /<title>[^<]*<\/title>[\s\S]*?<link rel="stylesheet" href="css\/site\.css/,
     `<title>${TITLE}</title>\n<meta name="description" content="${TITLE}: a colour-glass sliding puzzle. Slide glass panes so the window matches the picture. Where glass overlaps, colours mix.">\n<link rel="icon" href="favicon.svg" type="image/svg+xml">\n<link rel="stylesheet" href="css/site.css`, "head");
@@ -291,7 +292,7 @@ for (const f of files) {
 }
 const html = fs.readFileSync(path.join(OUT, "index.html"), "utf8");
 const links = [...html.matchAll(/<a\b[^>]*>/g)].map(m => m[0]);
-links.forEach(a => { if (!/href="https:\/\/paneslide\.github\.io\/(privacy|terms)\/" target="_blank" rel="noopener"/.test(a)) bad.push("index.html: link other than Privacy/Terms: " + a); });
+links.forEach(a => { if (!/href="https:\/\/paneslide\.com\/(privacy|terms)\/" target="_blank" rel="noopener"/.test(a)) bad.push("index.html: link other than Privacy/Terms: " + a); });
 if (!/<title>PaneSlide Levels<\/title>/.test(html)) bad.push("index.html: title");
 if (/[Dd]aily (puzzle|#)|DAILY/.test(html)) bad.push("index.html: daily text left");
 if (bad.length) { console.error("build-crazygames: checks failed:\n  " + bad.join("\n  ")); process.exit(1); }

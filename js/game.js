@@ -2,7 +2,7 @@
 (function () {
   "use strict";
   var E = window.PaneEngine;
-  var SITE = "paneslide.github.io";
+  var SITE = ((window.PANESLIDE_CONFIG || {}).SITE_URL || "https://paneslide.com").replace(/^https?:\/\//, "").replace(/\/+$/, "");
   var qs = new URLSearchParams(location.search);
   var TEST = qs.get("test") === "1";
   var $ = function (id) { return document.getElementById(id); };
@@ -224,7 +224,7 @@
   }
   function ensureLevels(cb) {
     if (window.PANESLIDE_LEVELS) return cb();
-    var sc = document.createElement("script"); sc.src = "js/levels.js?v=11"; sc.onload = cb; sc.onerror = cb; document.head.appendChild(sc);
+    var sc = document.createElement("script"); sc.src = "js/levels.js?v=12"; sc.onload = cb; sc.onerror = cb; document.head.appendChild(sc);
   }
   function getLevel(N) {
     var D = window.PANESLIDE_LEVELS;

@@ -76,31 +76,31 @@ async function solve(p) {
   await p.goto(BASE + "/?test=1&tutorial=0&mode=daily"); await p.waitForFunction(() => window.PS && PS.state); await p.waitForTimeout(600);
   await solve(p); await p.waitForSelector("#dlgEnd[open] #btnShare", { timeout: 6000 }); await p.waitForTimeout(400);
   await p.click("#btnShare"); await p.waitForTimeout(300);
-  checkLink("daily", await p.evaluate(() => window.__copied), "https://paneslide.github.io/?ref=share");
+  checkLink("daily", await p.evaluate(() => window.__copied), "https://paneslide.com/?ref=share");
   ok((await log(p)).includes("share/daily") && (await log(p)).some(x => /^daily\/solve\//.test(x)), "daily: share/daily and the daily win (daily/solve/...) are counted");
   // past day (practice): the link keeps its date and adds &ref=share
   await p.goto(BASE + "/?test=1&tutorial=0&date=2026-10-28"); await p.waitForFunction(() => window.PS && PS.state); await p.waitForTimeout(600);
   await solve(p); await p.waitForSelector("#dlgEnd[open] #btnShare", { timeout: 6000 }); await p.waitForTimeout(400);
   await p.click("#btnShare"); await p.waitForTimeout(300);
-  checkLink("past day", await p.evaluate(() => window.__copied), "https://paneslide.github.io/?date=2026-10-28&ref=share");
+  checkLink("past day", await p.evaluate(() => window.__copied), "https://paneslide.com/?date=2026-10-28&ref=share");
   ok((await log(p)).includes("share/archive") && (await log(p)).some(x => /^archive\/solve\//.test(x)), "past day: share/archive and archive/solve/... are counted");
   // level
   await p.goto(BASE + "/?test=1&tutorial=0&level=3"); await p.waitForFunction(() => window.PS && PS.state); await p.waitForTimeout(600);
   await solve(p); await p.waitForSelector("dialog[open] #btnLvShare", { timeout: 6000 }); await p.waitForTimeout(300);
   await p.click("#btnLvShare"); await p.waitForTimeout(300);
-  checkLink("level", await p.evaluate(() => window.__copied), "https://paneslide.github.io/?mode=levels&ref=share");
+  checkLink("level", await p.evaluate(() => window.__copied), "https://paneslide.com/?mode=levels&ref=share");
   ok((await log(p)).includes("share/level") && (await log(p)).some(x => /^level\/003\/complete\//.test(x)), "level: share/level and level/003/complete/... are counted");
   // milestone (the share button of the rank popup)
   await p.evaluate(() => document.getElementById("btnMileShare").click()); await p.waitForTimeout(300);
   const mt = await p.evaluate(() => window.__copied);
-  checkLink("milestone", mt, "https://paneslide.github.io/?mode=levels&ref=share");
+  checkLink("milestone", mt, "https://paneslide.com/?mode=levels&ref=share");
   ok((await log(p)).includes("share/milestone") && /^PaneSlide Levels/.test(mt), "milestone: share/milestone is counted");
-  ok(await p.evaluate(() => PS.shareLink({ a: "1 2", ref: "x" })) === "https://paneslide.github.io/?a=1+2&ref=share", "shareLink merges into an existing query and replaces any other ref");
+  ok(await p.evaluate(() => PS.shareLink({ a: "1 2", ref: "x" })) === "https://paneslide.com/?a=1+2&ref=share", "shareLink merges into an existing query and replaces any other ref");
   // arrivals
   for (const [u, want] of [["/?ref=share&test=1&tutorial=0", true], ["/?mode=levels&ref=share&test=1&tutorial=0", true], ["/?date=2026-10-28&ref=share&test=1&tutorial=0", true], ["/guides/?ref=share&test=1", true], ["/?test=1&tutorial=0", false], ["/?ref=shared&test=1&tutorial=0", false]]) {
     await p.goto(BASE + u); await p.waitForTimeout(700);
     const l2 = await log(p), canon = await p.evaluate(() => (document.querySelector("link[rel=canonical]") || {}).href);
-    ok(l2.includes("share/arrival") === want && /^https:\/\/paneslide\.github\.io\/[a-z\/]*$/.test(canon || ""), `${u}: share/arrival ${want ? "counted" : "not counted"}, canonical stays ${canon}`);
+    ok(l2.includes("share/arrival") === want && /^https:\/\/paneslide\.com\/[a-z\/]*$/.test(canon || ""), `${u}: share/arrival ${want ? "counted" : "not counted"}, canonical stays ${canon}`);
   }
   await ctx.close();
 

@@ -9,7 +9,7 @@ const og = () => `<div style="width:1200px;height:630px;background:linear-gradie
   <div style="flex:1;color:#fff">
     <div style="display:flex;align-items:center;gap:18px"><div style="background:#FFFDF8;border-radius:24px;width:96px;height:96px;display:flex;align-items:center;justify-content:center">${mark(84)}</div><div style="font-size:92px;font-weight:700;letter-spacing:-1px">PaneSlide</div></div>
     <div style="font-size:44px;font-weight:600;line-height:1.2;margin-top:28px">Slide the glass.<br>Mix the colours.<br>Match the picture.</div>
-    <div style="font-size:28px;font-weight:500;margin-top:26px;opacity:.92">A free daily colour puzzle · paneslide.github.io</div>
+    <div style="font-size:28px;font-weight:500;margin-top:26px;opacity:.92">A free daily colour puzzle · paneslide.com</div>
   </div>
   <div style="background:#fff;border-radius:34px;padding:16px;box-shadow:0 10px 0 rgba(0,0,0,.18)">${S.board({ n: 3, size: 380, arrows: false, panes: [{ c: "C", r: 1, col: 0, w: 3, h: 1, axis: "h" }, { c: "M", r: 0, col: 1, w: 1, h: 3, axis: "v" }, { c: "Y", r: 1, col: 2, w: 1, h: 2, axis: "v" }] })}</div>
 </div>`;

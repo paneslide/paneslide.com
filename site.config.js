@@ -2,7 +2,7 @@
    Search Console. After editing, run `node tools/build-site.js` (or ask Grok Bot) so every page is rebuilt.
    Pages also read the flags below at run time through js/site.js. */
 window.PANESLIDE_CONFIG = {
-  SITE_URL: "https://paneslide.github.io",      // change when the custom domain is live (no slash at the end)
+  SITE_URL: "https://paneslide.com",            // the live address (no slash at the end)
   CONTACT_EMAIL: "paneslide.game@gmail.com",    // shown on Contact, Privacy, Terms and in the footer
 
   ADS_ENABLED: false,                           // keep false until AdSense approves the site

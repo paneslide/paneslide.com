@@ -5,7 +5,7 @@
 
    What it does, compared with the website:
    - copies only the game (index.html, js, css, font, favicon) plus a small local archive.html;
-     the 49 content pages are NOT bundled: links to them open https://paneslide.github.io/... in a new tab
+     the 49 content pages are NOT bundled: links to them open https://paneslide.com/... in a new tab
    - every path is relative (itch serves the game from a sub-folder on html-classic.itch.zone)
    - no service worker, no manifest, no install button, no "new version - Refresh" toast
    - ads forced OFF
@@ -20,7 +20,7 @@
 "use strict";
 const fs = require("fs"), path = require("path"), cp = require("child_process");
 const ROOT = path.resolve(__dirname, "..");
-const SITE = "https://paneslide.github.io";
+const SITE = "https://paneslide.com";
 const d = new Date(), pad = n => String(n).padStart(2, "0");
 const DATE = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
 const OUT = path.resolve(process.argv[2] || "/workspace/paneslide-builds/itch");
@@ -57,6 +57,7 @@ function rewriteHtml(html, page) {
   // src="/x" and href="/x" on assets
   html = html.replace(/(src|href)="\/((?:js|css|fonts|site\.config)[^"]*)"/g, '$1="$2"');
   // remaining links
+  html = html.replace(/\n?<script src="\/?js\/migrate\.js\?v=[^"]*"><\/script>/g, ""); // the move-from-github.io importer is website-only
   html = html.replace(/<a ([^>]*?)href=(["'])(\/[^"']*)\2([^>]*)>/g, (m, pre, q, u, post) => {
     const t = mapHref(u);
     if (t.local) return `<a ${pre}href=${q}${t.local}${q}${post}>`;

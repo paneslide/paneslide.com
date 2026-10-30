@@ -3,4 +3,4 @@ Allow: /
 Disallow: /tools/
 Disallow: /content/
 
-Sitemap: https://paneslide.github.io/sitemap.xml
+Sitemap: https://paneslide.com/sitemap.xml

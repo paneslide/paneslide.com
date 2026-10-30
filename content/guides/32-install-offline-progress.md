@@ -12,7 +12,7 @@ PaneSlide runs in your web browser, with nothing to download from an app store. 
 
 ## Installing on Android (Chrome and similar browsers)
 
-1. Open **paneslide.github.io** in Chrome.
+1. Open **paneslide.com** in Chrome.
 2. Open **Settings** in the game (the gear button). If your browser supports installing, you will see an **📲 Install app** button. Tap it and confirm.
 3. If you do not see the button, open Chrome's menu (⋮) and choose **Add to Home screen** or **Install app**.
 
@@ -22,7 +22,7 @@ PaneSlide then appears on your home screen with its own icon and opens in its ow
 
 Safari does not show an install button inside web pages, so the steps are a little different:
 
-1. Open **paneslide.github.io** in **Safari**.
+1. Open **paneslide.com** in **Safari**.
 2. Tap the **Share** button (the square with an arrow pointing up).
 3. Scroll down and tap **Add to Home Screen**, then **Add**.
 
@@ -32,7 +32,7 @@ The PaneSlide icon will appear on your home screen.
 
 In Chrome or Edge on Windows, macOS, Linux or ChromeOS:
 
-1. Open **paneslide.github.io**.
+1. Open **paneslide.com**.
 2. Use the **📲 Install app** button in Settings or at the bottom of the page if it appears, or the small install icon at the right of the address bar.
 
 The installed app opens in its own window. On a big screen, PaneSlide uses a wider layout with a larger board and a Controls panel. See [keyboard and mouse controls](/guides/keyboard-and-mouse/).

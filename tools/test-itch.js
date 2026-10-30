@@ -166,7 +166,7 @@ async function fits(f, label) { // nothing pokes out of the frame on the play sc
     await f.goto(GAME + "index.html?test=1&tutorial=0"); await p.waitForTimeout(800);
     // links to content pages open the website in a new tab
     const ext = await f.$$eval("a[href]", a => a.filter(x => /^https?:/.test(x.getAttribute("href"))).map(x => [x.getAttribute("href"), x.target, x.rel]));
-    ok(ext.length > 0 && ext.every(x => x[0].startsWith("https://paneslide.github.io/") && x[1] === "_blank" && /noopener/.test(x[2])), ext.length + " content links point at https://paneslide.github.io/... with target=_blank rel=noopener");
+    ok(ext.length > 0 && ext.every(x => x[0].startsWith("https://paneslide.com/") && x[1] === "_blank" && /noopener/.test(x[2])), ext.length + " content links point at https://paneslide.com/... with target=_blank rel=noopener");
     await f.evaluate(() => document.getElementById("btnHomeSettings").click()); await p.waitForTimeout(300);
     const [pop] = await Promise.all([ctx.waitForEvent("page"), f.click(".set-links a[href*='/guides/']")]);
     await pop.waitForURL(/paneslide\.github\.io\/guides/, { timeout: 20000 }).catch(() => {});

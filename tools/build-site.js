@@ -8,7 +8,7 @@ const ctx = { window: {} }; vm.runInNewContext(fs.readFileSync(path.join(ROOT, "
 const CFG = ctx.window.PANESLIDE_CONFIG, URL0 = CFG.SITE_URL.replace(/\/$/, "");
 const FIG = require("./site/figures.js");
 const SHOTS = fs.existsSync(path.join(ROOT, "img/guides/shots.json")) ? JSON.parse(fs.readFileSync(path.join(ROOT, "img/guides/shots.json"), "utf8")) : {};
-const V = "11"; // asset version for css/js links
+const V = "12"; // asset version for css/js links
 const TODAY = process.env.BUILD_DATE || "2026-10-29";
 const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const obf = s => s.split("").map(ch => "&#" + ch.charCodeAt(0) + ";").join(""); // light scraper protection, still a normal link
@@ -114,6 +114,7 @@ ${p.body}
 </main>
 ${footer()}
 <script src="/site.config.js?v=${V}"></script>
+<script src="/js/migrate.js?v=${V}"></script>
 <script src="/js/site.js?v=${V}" defer></script>${(p.scripts || []).map(s => `\n<script src="${s}?v=${V}" defer></script>`).join("")}
 </body>
 </html>
@@ -204,7 +205,7 @@ const intro = `<!--site-intro-->
 </div>
 <!--/site-intro-->`;
 idx = idx.replace(/<!--site-intro-->[\s\S]*?<!--\/site-intro-->/, intro);
-idx = idx.replace(/<!--site-js-->[\s\S]*?<!--\/site-js-->/, `<!--site-js--><script src="site.config.js?v=${V}"></script>\n<script src="js/site.js?v=${V}" defer></script><!--/site-js-->`);
+idx = idx.replace(/<!--site-js-->[\s\S]*?<!--\/site-js-->/, `<!--site-js--><script src="site.config.js?v=${V}"></script>\n<script src="js/migrate.js?v=${V}"></script>\n<script src="js/site.js?v=${V}" defer></script><!--/site-js-->`);
 fs.writeFileSync(path.join(ROOT, "index.html"), idx); written.push("index.html");
 addMap("/", "1.0");
 
@@ -216,10 +217,10 @@ write("manifest.webmanifest", JSON.stringify({ name: "PaneSlide: colour glass pu
   screenshots: fs.existsSync(path.join(ROOT, "img/app-home.png")) ? [{ src: "/img/app-home.png", sizes: "390x844", type: "image/png", form_factor: "narrow", label: "PaneSlide home screen" }] : [] }, null, 2) + "\n");
 
 // ---------- service worker: versioned cache, precache the game and guides ----------
-const PRE = ["/", "/index.html", "/css/style.css?v=" + V, "/css/site.css?v=" + V, "/js/engine.js?v=" + V, "/js/game.js?v=" + V, "/js/levels.js?v=" + V, "/js/site.js?v=" + V, "/js/archive.js?v=" + V, "/site.config.js?v=" + V,
+const PRE = ["/", "/index.html", "/css/style.css?v=" + V, "/css/site.css?v=" + V, "/js/engine.js?v=" + V, "/js/game.js?v=" + V, "/js/levels.js?v=" + V, "/js/site.js?v=" + V, "/js/archive.js?v=" + V, "/js/migrate.js?v=" + V, "/site.config.js?v=" + V,
   "/fonts/fredoka-latin.woff2", "/favicon.svg", "/manifest.webmanifest", "/icons/icon-192.png", "/404.html"].concat(sitemap.map(s => s[0]).filter(u => u !== "/"));
-const hash = crypto.createHash("sha1"); ["index.html", "css/style.css", "css/site.css", "js/engine.js", "js/game.js", "js/levels.js", "js/site.js", "js/archive.js", "site.config.js"].concat(written.filter(w => /\.html$/.test(w))).forEach(f => hash.update(fs.readFileSync(path.join(ROOT, f))));
-const VER = "ps-" + hash.digest("hex").slice(0, 10);
+const hash = crypto.createHash("sha1"); ["index.html", "css/style.css", "css/site.css", "js/engine.js", "js/game.js", "js/levels.js", "js/site.js", "js/archive.js", "js/migrate.js", "site.config.js"].concat(written.filter(w => /\.html$/.test(w))).forEach(f => hash.update(fs.readFileSync(path.join(ROOT, f))));
+const VER = "psc-" + hash.digest("hex").slice(0, 10);
 write("sw.js", fs.readFileSync(path.join(__dirname, "site/sw-template.js"), "utf8").replace("__VERSION__", VER).replace("__PRECACHE__", JSON.stringify(PRE, null, 1)));
 
 // ---------- report ----------

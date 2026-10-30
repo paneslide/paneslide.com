@@ -11,6 +11,13 @@ A free daily puzzle. **Swipe the glass to copy the picture. Where glass overlaps
 
 Static site: no server, no accounts. To host it, publish this folder on GitHub Pages. The game itself has no build step; the website pages (guides, privacy and so on) are generated once by `node tools/build-site.js` and committed, so GitHub Pages just serves files.
 
+## Address: paneslide.com (moved from paneslide.github.io)
+
+- The site lives in the repo **paneslide/paneslide.com** (GitHub Pages, `CNAME` file = `paneslide.com`, HTTPS enforced). The old repo **paneslide/paneslide.github.io** is only a bridge: every old address sends players to the same path on paneslide.com. It is built by `node tools/build-bridge.js <folder>` and has NO custom domain.
+- The bridge packs the old save into the usual progress code and adds `#import=<code>` (only when a save exists). `js/migrate.js` (loaded before the game on every page) imports it only if this device has no save yet, removes the `#import` from the address, shows "Your progress moved over" and counts `event/migrated`. An existing save is never overwritten.
+- The bridge's `sw.js` deletes the old caches and unregisters itself, so installed apps reach the bridge and move over.
+- Test: `PW=$(npm root -g)/playwright-core node tools/test-migration.js` (local copy of both sites, host names mapped to this computer).
+
 ## Website layer (v9, AdSense-ready)
 
 Pages (all generated from Markdown in `content/` by `node tools/build-site.js --check`, which also checks guide word counts of 600–1200):
@@ -30,7 +37,7 @@ Every page has a title, description, canonical URL, Open Graph/Twitter card (`im
 ### One config file: `site.config.js`
 
 ```js
-SITE_URL: "https://paneslide.github.io",   // change when a custom domain is added, then rebuild
+SITE_URL: "https://paneslide.com",   // the live address; change only if the domain changes, then rebuild
 CONTACT_EMAIL: "paneslide.game@gmail.com",
 ADS_ENABLED: false,  ADSENSE_CLIENT: "",  ADSENSE_SLOTS: {...},   // ads stay OFF until approval
 ANALYTICS_ENABLED: true,  GOATCOUNTER_CODE: "paneslide",         // GoatCounter, ON since 29 Oct 2026 (7:42 PM IST)
@@ -62,7 +69,7 @@ Anonymous GoatCounter *events* (`event:true`, shown in the dashboard as paths st
 
 **Reading the funnel:** in the GoatCounter dashboard, filter paths by `event/level/012/` to see one level: compare `start` with `complete` + `over-par` + `quit`. Levels where `over-par` or `quit` is high are the hardest; `mechanic/*/first-seen` shows how far players get; `daily/start` vs `daily/solve` and `archive/play` show daily habits; `tutorial/start` vs `tutorial/complete`/`skip` shows first-run drop-off. Counts are per session (roughly unique visitors), not raw plays. Privacy Policy lists every event.
 - **Shares and return visits:** `share/daily`, `share/archive`, `share/level`, `share/milestone` (share button pressed; every share text ends in a link tagged `?ref=share`), `share/arrival` (a visit with `ref=share`; GoatCounter also shows `share` as the page view's source). On the first game visit of a local calendar day: `returning` (the player has an earlier day) and one `streak/<bucket>` for consecutive visit days: 1 → `day-1`, 2 → `day-2`, 3–6 → `day-3`, 7–13 → `day-7`, 14–29 → `day-14`, 30+ → `day-30plus`. Only dates are stored, in `ps2:days` (`first`, `start`, `last`). Test: `PW=... node tools/test-share-retention.js`.
-- **Google Search Console:** add the URL-prefix property `https://paneslide.github.io/`, choose "HTML tag", copy only the `content="..."` value into `GSC_VERIFICATION`, rebuild, push, press Verify, then submit `sitemap.xml`.
+- **Google Search Console:** add a property for `https://paneslide.com/` (a Domain property via a DNS TXT record, or a URL-prefix property with "HTML tag"), for "HTML tag" copy only the `content="..."` value into `GSC_VERIFICATION`, rebuild, push, press Verify, then submit `sitemap.xml`.
 
 ## Roadmap (not built yet)
 

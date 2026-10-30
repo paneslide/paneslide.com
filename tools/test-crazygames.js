@@ -28,7 +28,7 @@ async function newCtx(b, opt = {}) {
     log.errors.push(m.type() + ": " + t + (m.location() && m.location().url ? " @ " + m.location().url : "")); });
   ctx.on("weberror", e => log.errors.push("pageerror: " + e.error().message));
   ctx.on("response", r => { if (r.status() >= 400) log.http.push(r.status() + " " + r.url()); });
-  ctx.on("requestfailed", r => { if (!/goatcounter|paneslide\.github\.io/.test(r.url())) log.http.push("failed " + r.url()); });
+  ctx.on("requestfailed", r => { if (!/goatcounter|paneslide\.com/.test(r.url())) log.http.push("failed " + r.url()); });
   ctx.on("request", r => { if (/goatcounter\.com\/count/.test(r.url())) log.gc.push(r.url()); });
   await ctx.route(/goatcounter\.com\/count/, r => r.fulfill({ status: 204, body: "" }));
   return { ctx, log };
@@ -83,7 +83,7 @@ async function noWebsiteBits(f, label) {
   }));
   ok(r.title === "PaneSlide Levels", `${label}: title "${r.title}"`);
   ok(!r.daily && !r.text, `${label}: no daily/archive/share/install/website elements or text`);
-  ok(r.links.length > 0 && r.links.every(x => /^https:\/\/paneslide\.github\.io\/(privacy|terms)\/$/.test(x[0]) && x[1] === "_blank" && /noopener/.test(x[2])), `${label}: only outbound links are Privacy/Terms in a new tab (${r.links.map(x => x[0]).join(", ")})`);
+  ok(r.links.length > 0 && r.links.every(x => /^https:\/\/paneslide\.com\/(privacy|terms)\/$/.test(x[0]) && x[1] === "_blank" && /noopener/.test(x[2])), `${label}: only outbound links are Privacy/Terms in a new tab (${r.links.map(x => x[0]).join(", ")})`);
   ok(!r.fsBtn, `${label}: no in-game fullscreen button`);
 }
 async function toLevel(p, f, tap) { // home -> PLAY -> map -> current level
@@ -158,13 +158,13 @@ async function toLevel(p, f, tap) { // home -> PLAY -> map -> current level
       // Privacy opens a new tab, the game stays
       await f.evaluate(() => document.getElementById("btnHomeSettings").click()); await p.waitForTimeout(300);
       const [pop] = await Promise.all([ctx.waitForEvent("page"), f.click(".set-links a[href$='/privacy/']")]);
-      await pop.waitForURL(/paneslide\.github\.io\/privacy/, { timeout: 20000 }).catch(() => {});
-      ok(/paneslide\.github\.io\/privacy\//.test(pop.url()), "Privacy link opens a new tab: " + pop.url()); await pop.close();
+      await pop.waitForURL(/paneslide\.com\/privacy/, { timeout: 20000 }).catch(() => {});
+      ok(/paneslide\.com\/privacy\//.test(pop.url()), "Privacy link opens a new tab: " + pop.url()); await pop.close();
       ok(await f.evaluate(() => PS.mode === "home"), "the game stays put in the frame");
     }
     const errs = log.errors.concat(await frameErrors(f));
     ok(errs.length === 0, "no console errors/warnings" + (errs.length ? ": " + errs.join(" | ") : ""));
-    ok(log.http.filter(u => !/paneslide\.github\.io/.test(u)).length === 0, "no 404s / failed requests" + (log.http.length ? ": " + log.http.join(" | ") : ""));
+    ok(log.http.filter(u => !/paneslide\.com/.test(u)).length === 0, "no 404s / failed requests" + (log.http.length ? ": " + log.http.join(" | ") : ""));
     await ctx.close();
   }
 

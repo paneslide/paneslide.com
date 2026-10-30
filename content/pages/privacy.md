@@ -9,7 +9,7 @@ updated: 2026-10-30
 ---
 **Last updated: {{UPDATED}}**
 
-This policy explains what information PaneSlide (the website at paneslide.github.io and any future domain of ours, "we", "us") uses, why, and the choices you have. If anything here is unclear, email {{EMAIL}}.
+This policy explains what information PaneSlide (the website at paneslide.com, formerly paneslide.github.io, and any future domain of ours, "we", "us") uses, why, and the choices you have. If anything here is unclear, email {{EMAIL}}.
 
 ## The short version
 

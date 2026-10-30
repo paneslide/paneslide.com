@@ -9,6 +9,14 @@ priority: 0.5
 ---
 PaneSlide is updated often. This page lists what changed in each version, in plain words. Your progress is never reset by an update. When a new version is ready, the game shows a small "new version" message with a Refresh button.
 
+## Version 12 · 30 October 2026
+
+### New address: paneslide.com
+
+- PaneSlide now lives at **paneslide.com**. The old address, paneslide.github.io, sends you to the same page on the new address.
+- Your progress comes with you: if you played at the old address in this browser, your levels, daily results, streaks and settings are copied over the first time you arrive, and the game says "Your progress moved over". If this browser already has PaneSlide progress at the new address, it is kept as it is.
+- If you installed PaneSlide as an app from the old address, open it once while online and it moves over too. You can then install it again from paneslide.com.
+
 ## Version 11 · 30 October 2026
 
 **Share links and anonymous return counts.**

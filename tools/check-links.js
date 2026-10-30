@@ -10,7 +10,7 @@ for (const f of files) {
   for (const m of html.matchAll(/\s(?:href|src)="([^"]+)"/g)) {
     let u = m[1].replace(/&amp;/g, "&");
     if (/^(mailto:|tel:|data:|javascript:)/.test(u) || u.startsWith("&#")) continue;
-    if (/^https?:/.test(u)) { if (u.startsWith("https://paneslide.github.io")) u = u.slice(27) || "/"; else { ext.add(u); continue; } }
+    if (/^https?:/.test(u)) { if (/^https:\/\/(paneslide\.com|paneslide\.github\.io)(\/|$)/.test(u)) u = u.replace(/^https:\/\/[^\/]+/, "") || "/"; else { ext.add(u); continue; } }
     n++;
     const [p0, hash] = u.split("#"); const p1 = p0.split("?")[0];
     const t = p1 ? target(f, p1) : f;
