@@ -169,13 +169,13 @@ async function fits(f, label) { // nothing pokes out of the frame on the play sc
     ok(ext.length > 0 && ext.every(x => x[0].startsWith("https://paneslide.com/") && x[1] === "_blank" && /noopener/.test(x[2])), ext.length + " content links point at https://paneslide.com/... with target=_blank rel=noopener");
     await f.evaluate(() => document.getElementById("btnHomeSettings").click()); await p.waitForTimeout(300);
     const [pop] = await Promise.all([ctx.waitForEvent("page"), f.click(".set-links a[href*='/guides/']")]);
-    await pop.waitForURL(/paneslide\.github\.io\/guides/, { timeout: 20000 }).catch(() => {});
-    ok(/paneslide\.github\.io\/guides/.test(pop.url()), "Guides link opens a new tab: " + pop.url());
+    await pop.waitForURL(/paneslide\.com\/guides/, { timeout: 20000 }).catch(() => {});
+    ok(/paneslide\.com\/guides/.test(pop.url()), "Guides link opens a new tab: " + pop.url());
     await pop.close();
     ok(await f.evaluate(() => PS.mode === "home"), "the game stays put in the frame");
     const errs = log.errors.concat(await frameErrors(f));
     ok(errs.length === 0, "no console errors/warnings" + (errs.length ? ": " + errs.join(" | ") : ""));
-    ok(log.http.filter(u => !/paneslide\.github\.io/.test(u)).length === 0, "no 404s / failed requests" + (log.http.length ? ": " + log.http.join(" | ") : ""));
+    ok(log.http.filter(u => !/paneslide\.com/.test(u)).length === 0, "no 404s / failed requests" + (log.http.length ? ": " + log.http.join(" | ") : ""));
     await ctx.close();
   }
 
