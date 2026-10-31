@@ -2,13 +2,13 @@
 // Usage: node tools/build-site.js        Reads site.config.js (the one settings file).
 // Writes: about/ how-to-play/ privacy/ terms/ contact/ archive/ guides/ 404.html sitemap.xml robots.txt
 //         manifest.webmanifest sw.js, and updates the marked blocks in index.html.
-const fs = require("fs"), path = require("path"), vm = require("vm"), crypto = require("crypto");
+const fs = require("fs"), path = require("path"), vm = require("vm"), crypto = require("crypto"), cp = require("child_process");
 const ROOT = path.join(__dirname, "..");
 const ctx = { window: {} }; vm.runInNewContext(fs.readFileSync(path.join(ROOT, "site.config.js"), "utf8"), ctx);
 const CFG = ctx.window.PANESLIDE_CONFIG, URL0 = CFG.SITE_URL.replace(/\/$/, "");
 const FIG = require("./site/figures.js");
 const SHOTS = fs.existsSync(path.join(ROOT, "img/guides/shots.json")) ? JSON.parse(fs.readFileSync(path.join(ROOT, "img/guides/shots.json"), "utf8")) : {};
-const V = "12"; // asset version for css/js links
+const V = "13"; // asset version for css/js links
 const TODAY = process.env.BUILD_DATE || "2026-10-29";
 const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const obf = s => s.split("").map(ch => "&#" + ch.charCodeAt(0) + ";").join(""); // light scraper protection, still a normal link
@@ -121,9 +121,11 @@ ${footer()}
 `;
 }
 const written = [];
-function write(rel, html) { const f = path.join(ROOT, rel); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, html); written.push(rel); }
+const OUT = {}; // what this build wrote, by file (for the sitemap dates)
+function write(rel, html) { const f = path.join(ROOT, rel); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, html); written.push(rel); OUT[rel] = html; }
 const sitemap = [];
-function addMap(url, pri) { sitemap.push([url, pri]); }
+// addMap(url, priority, built file, source files): the sitemap <lastmod> is worked out from git, see lastMod() below
+function addMap(url, pri, out, src) { sitemap.push([url, pri, out, src || []]); }
 
 // ---------- guides ----------
 const GUIDE_DIR = path.join(ROOT, "content/guides");
@@ -154,7 +156,7 @@ ${r.toc.length >= 3 ? `<nav class="s-sidebox" aria-label="Sections of this guide
 </div>
 ${adSlot("guide")}`;
   write(`guides/${g.slug}/index.html`, page({ url, title: `${g.meta.title} · PaneSlide`, ogTitle: g.meta.h1 || g.meta.title, desc: g.meta.desc, body, nav: "/guides/", ogType: "article", ld }));
-  addMap(url, "0.7");
+  addMap(url, "0.7", `guides/${g.slug}/index.html`, [`content/guides/${g.file}`]);
 });
 function cardLink(g) { return `<a class="s-cardlink" href="/guides/${g.slug}/"><span class="ic" aria-hidden="true">${g.meta.icon || "📘"}</span><h3>${esc(g.meta.h1 || g.meta.title)}</h3><p>${esc(g.meta.desc)}</p></a>`; }
 function fmtDate(s) { const d = new Date(s + "T12:00:00Z"); return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }); }
@@ -162,7 +164,7 @@ write("guides/index.html", page({ url: "/guides/", title: "PaneSlide guides: rul
   ld: [{ "@context": "https://schema.org", "@type": "CollectionPage", name: "PaneSlide guides", url: URL0 + "/guides/", hasPart: guides.map(g => ({ "@type": "Article", headline: g.meta.h1 || g.meta.title, url: URL0 + `/guides/${g.slug}/` })) }],
   body: `<div class="s-hero"><span class="s-kicker">Guides</span><h1>Get better at PaneSlide</h1><p>${guides.length} short, original guides written by the PaneSlide team: the rules, the strategy, and every special kind of glass, with diagrams drawn from the real game.</p></div>
 ${groups.map(gr => { const list = guides.filter(g => (g.meta.group || "start") === gr[1]); return list.length ? `<section class="s-card" aria-labelledby="g-${gr[1]}"><h2 id="g-${gr[1]}" style="font:700 24px/1.2 Fredoka,system-ui,sans-serif;margin:0 0 14px">${gr[0]}</h2><div class="s-grid">${list.map(cardLink).join("")}</div></section>` : ""; }).join("\n")}` }));
-addMap("/guides/", "0.8");
+addMap("/guides/", "0.8", "guides/index.html", []);
 
 // ---------- trust pages ----------
 const PAGE_DIR = path.join(ROOT, "content/pages");
@@ -179,7 +181,7 @@ fs.readdirSync(PAGE_DIR).filter(f => f.endsWith(".md")).forEach(f => {
 ${r.html}
 ${d.meta.cta === "no" ? "" : `<div class="s-cta"><a class="s-btn" href="/">▶ Play PaneSlide</a></div>`}
 </div>` }));
-  addMap(url, d.meta.priority || "0.5");
+  addMap(url, d.meta.priority || "0.5", `${slug}/index.html`, [`content/pages/${f}`]);
 });
 
 // ---------- 404 ----------
@@ -206,11 +208,37 @@ const intro = `<!--site-intro-->
 <!--/site-intro-->`;
 idx = idx.replace(/<!--site-intro-->[\s\S]*?<!--\/site-intro-->/, intro);
 idx = idx.replace(/<!--site-js-->[\s\S]*?<!--\/site-js-->/, `<!--site-js--><script src="site.config.js?v=${V}"></script>\n<script src="js/migrate.js?v=${V}"></script>\n<script src="js/site.js?v=${V}" defer></script><!--/site-js-->`);
-fs.writeFileSync(path.join(ROOT, "index.html"), idx); written.push("index.html");
-addMap("/", "1.0");
+fs.writeFileSync(path.join(ROOT, "index.html"), idx); written.push("index.html"); OUT["index.html"] = idx;
+addMap("/", "1.0", "index.html", []);
 
 // ---------- sitemap, robots, manifest ----------
-write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemap.sort((a, b) => b[1] - a[1]).map(s => `  <url><loc>${URL0}${s[0]}</loc><lastmod>${TODAY}</lastmod><priority>${s[1]}</priority></url>`).join("\n")}\n</urlset>\n`);
+// <lastmod> for each page = the newer of
+//   (a) the last git commit of the page's source file (content/guides/*.md, content/pages/*.md), and
+//   (b) the last commit in which the page's own content changed because of the template (build-site.js, figures,
+//       shared blocks): found by walking the git history of the BUILT file and comparing only its content
+//       (<main> for site pages; for the game page everything outside the head tags), with ?v= asset versions removed,
+//       so version bumps, header/footer and head-tag changes do not count.
+// A file with uncommitted changes counts as changed today. Dates are W3C dates (YYYY-MM-DD) in IST, the site's time zone.
+// BUILD_DATE=YYYY-MM-DD overrides "today"; without git every page gets today.
+const git = (...a) => { try { return cp.execFileSync("git", ["-C", ROOT, ...a], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], maxBuffer: 64 << 20 }); } catch (e) { return null; } };
+const istDay = d => new Date(d).toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+const NOW_DAY = process.env.BUILD_DATE || istDay(Date.now());
+const HAS_GIT = git("rev-parse", "--is-inside-work-tree") !== null && git("rev-parse", "--is-shallow-repository") !== "true\n";
+const contentOf = (rel, html) => (rel === "index.html" ? html.replace(/<!--site-head-->[\s\S]*?<!--\/site-head-->/, "") : ((/<main[\s\S]*?<\/main>/.exec(html) || [html])[0])).replace(/\?v=[\w.-]+/g, "");
+function sourceDay(files) {
+  if (!files.length) return null;
+  if ((git("status", "--porcelain", "--", ...files) || "").trim()) return NOW_DAY;
+  const d = (git("log", "-1", "--format=%cI", "--", ...files) || "").trim(); return d ? istDay(d) : NOW_DAY;
+}
+function contentDay(rel) {
+  const now = contentOf(rel, OUT[rel]), log = (git("log", "--format=%H %cI", "--", rel) || "").trim().split("\n").filter(Boolean).map(l => l.split(" "));
+  let day = NOW_DAY;
+  for (const [h, d] of log) { const old = git("show", `${h}:${rel}`); if (old === null || contentOf(rel, old) !== now) break; day = istDay(d); }
+  return day; // the oldest commit in the latest run of commits with this same content (today if it differs from every commit)
+}
+function lastMod(s) { if (!HAS_GIT) return NOW_DAY; return [sourceDay(s[3]), contentDay(s[2])].filter(Boolean).sort().pop(); }
+sitemap.forEach(s => { s[4] = lastMod(s); if (!/^\d{4}-\d{2}-\d{2}$/.test(s[4])) throw new Error("bad lastmod for " + s[0]); });
+write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemap.sort((a, b) => b[1] - a[1]).map(s => `  <url><loc>${URL0}${s[0]}</loc><lastmod>${s[4]}</lastmod><priority>${s[1]}</priority></url>`).join("\n")}\n</urlset>\n`);
 write("robots.txt", `User-agent: *\nAllow: /\nDisallow: /tools/\nDisallow: /content/\n\nSitemap: ${URL0}/sitemap.xml\n`);
 write("manifest.webmanifest", JSON.stringify({ name: "PaneSlide: colour glass puzzle", short_name: "PaneSlide", description: "Slide the glass, copy the picture. A calm daily colour puzzle.", id: "/", start_url: "/", scope: "/", display: "standalone", orientation: "portrait", background_color: "#2B1466", theme_color: "#3B1F7A", categories: ["games", "puzzle"],
   icons: [{ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }, { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" }, { src: "/icons/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" }],

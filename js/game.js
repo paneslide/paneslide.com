@@ -62,6 +62,11 @@
   // Buckets: 1 day -> day-1, 2 -> day-2, 3-6 -> day-3, 7-13 -> day-7, 14-29 -> day-14, 30 or more -> day-30plus.
   // (This is a visit streak. The daily-puzzle streak in ps2:stats needs a daily win and the gift streak needs
   // the gift opened, so neither can be reused for it; the date helpers are shared.)
+  // 7-day return rate (v12): two one-time events per device, also through track() (so never sent under DNT/GPC):
+  //   retention/new-player  once, on the first-ever game visit (days.np marks it as sent; no ID is stored);
+  //   retention/d7-return   once, on the first visit on a LATER day that is 1-7 days after the first visit,
+  //                         only for devices that counted new-player (days.d7 marks it as sent).
+  // 7-day return rate = count(d7-return) / count(new-player). Players from before v12 have no np, so they are left out.
   function streakBucket(k) { return k >= 30 ? "day-30plus" : k >= 14 ? "day-14" : k >= 7 ? "day-7" : k >= 3 ? "day-3" : k >= 2 ? "day-2" : "day-1"; }
   function dayGap(a, b) { return Math.round((Date.parse(b + "T00:00:00Z") - Date.parse(a + "T00:00:00Z")) / 86400000); }
   var isDay = function (d) { return /^\d{4}-\d{2}-\d{2}$/.test(d || ""); };
@@ -72,7 +77,10 @@
     if (!days) { // first time with this version: players from before it start from their earliest known day
       var known = [prog.login.last, stats.lastWin].filter(function (d) { return isDay(d) && d < today; }).sort()[0];
       days = { first: known || today, start: today, last: null };
+      var played = prog.unlocked > 1 || stats.played > 0 || Object.keys(prog.stars).length > 0; // an older save without dates
+      if (!known && !played) { days.np = 1; track("retention/new-player", "New player (first visit on this device)"); }
     }
+    if (days.np && !days.d7 && days.first < today && dayGap(days.first, today) <= 7) { days.d7 = 1; track("retention/d7-return", "Came back within 7 days of the first visit"); }
     days.start = days.last === E.addDays(today, -1) ? days.start : today;
     days.last = today; save("ps2:days", days);
     var b = streakBucket(dayGap(days.start, today) + 1);
@@ -224,7 +232,7 @@
   }
   function ensureLevels(cb) {
     if (window.PANESLIDE_LEVELS) return cb();
-    var sc = document.createElement("script"); sc.src = "js/levels.js?v=12"; sc.onload = cb; sc.onerror = cb; document.head.appendChild(sc);
+    var sc = document.createElement("script"); sc.src = "js/levels.js?v=13"; sc.onload = cb; sc.onerror = cb; document.head.appendChild(sc);
   }
   function getLevel(N) {
     var D = window.PANESLIDE_LEVELS;

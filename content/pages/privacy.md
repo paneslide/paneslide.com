@@ -5,7 +5,7 @@ kicker: Privacy
 lead: Plain words first: PaneSlide has no accounts and keeps your game progress on your own device.
 desc: How PaneSlide handles your data: progress saved in your browser's local storage, no accounts, how Google AdSense cookies and personalised ads will work, analytics, children, your rights and how to contact us.
 priority: 0.4
-updated: 2026-10-30
+updated: 2026-10-31
 ---
 **Last updated: {{UPDATED}}**
 
@@ -21,7 +21,7 @@ This policy explains what information PaneSlide (the website at paneslide.com, f
 
 ## Information stored on your device
 
-PaneSlide saves your stars, levels, streak, daily results, shards, settings (music, sound, vibration, colour patterns), which tips you have seen, and the dates of your first and latest visit days (used for the return-visit counts described below). This is kept in your browser's **local storage** under names that start with `ps2:`. It never leaves your device unless you choose to copy your own progress code from Settings.
+PaneSlide saves your stars, levels, streak, daily results, shards, settings (music, sound, vibration, colour patterns), which tips you have seen, and the dates of your first and latest visit days plus two yes/no marks (used for the return-visit counts described below). This is kept in your browser's **local storage** under names that start with `ps2:`. It never leaves your device unless you choose to copy your own progress code from Settings.
 
 Local storage is not a cookie and is not sent with web requests. You can delete it at any time by clearing this site's data in your browser settings (this resets your progress). If you install PaneSlide as an app, your browser also keeps a copy of the game's files so it works offline; this cache contains no personal information.
 
@@ -62,6 +62,7 @@ Besides page views, the game counts a few anonymous **events**, so we can see wh
 - **Shop and gifts:** which shop item was bought with in-game shards (no real money exists in PaneSlide), and which day of the gift week was claimed.
 - **Sharing:** the share button was pressed (for the daily, a past day, a level or a milestone). Links in share texts end in "?ref=share", and a visit that arrives through one is counted once as "arrived from a shared link". This tells us that sharing happened, never who shared or who opened the link.
 - **Return visits:** on the first visit of a new day (by your device's calendar), whether you have played on an earlier day, and how many days in a row you have visited, in a band: 1, 2, 3 to 6, 7 to 13, 14 to 29, or 30 and more. To work this out the game keeps just three dates on your device (your first day, the first day of the current run and the last day you visited), which are never sent.
+- **New players and 7-day returns:** once per device, a count that this is a first visit, and once per device, a count if you come back on another day within 7 days of that first visit. This tells us what share of new players come back within a week. Two yes/no marks on your device make sure each is counted only once; no identifier is created or sent.
 - **Music:** switched on or muted.
 - **App:** the install button was pressed, and the app was installed.
 - **Guides:** each guide page is counted as a page view, plus one event when a reader scrolls through three quarters of a guide.

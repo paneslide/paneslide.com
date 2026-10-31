@@ -39,7 +39,7 @@ async function solve(p) {
   let l = await visit(day(0) + "T10:00:00+05:30");
   ok(l.join() === "streak/day-1", "first-ever day: streak/day-1 and no 'returning' (" + l.join() + ")");
   const d0 = await p.evaluate(() => JSON.parse(localStorage.getItem("ps2:days")));
-  ok(JSON.stringify(d0) === JSON.stringify({ first: day(0), start: day(0), last: day(0) }) && Object.values(d0).every(v => /^\d{4}-\d\d-\d\d$/.test(v)), "only dates are stored: " + JSON.stringify(d0));
+  ok(JSON.stringify(d0) === JSON.stringify({ first: day(0), start: day(0), last: day(0), np: 1 }) && Object.values(d0).every(v => /^\d{4}-\d\d-\d\d$/.test(v) || v === 1), "only dates (and yes/no marks) are stored: " + JSON.stringify(d0));
   l = await visit(day(0) + "T21:00:00+05:30"); ok(l.length === 0, "second visit the same day: no events (" + l.join() + ")");
   let allGood = true, seen = [];
   for (let k = 1; k <= 31; k++) {
@@ -63,6 +63,29 @@ async function solve(p) {
   ok(l.join() === "returning,streak/day-1", "existing player (no ps2:days yet) counts as returning: " + l.join());
   ok(await p.evaluate(() => JSON.parse(localStorage.getItem("ps2:days")).first) === "2026-11-07", "their first day is taken from the gift date");
   await ctx.close();
+
+  // ---- 1b. 7-day return rate: retention/new-player and retention/d7-return, once per device ----
+  const rlog = async () => (await log(p)).filter(x => /^retention\//.test(x));
+  const rvisit = async iso => { await ctx.clock.setFixedTime(new Date(iso)); await p.goto(BASE + "/?test=1&tutorial=0"); await p.waitForFunction(() => window.PS && PS.days); await p.waitForTimeout(150); return (await rlog()).join(); };
+  const fresh = async seed => { ctx = await b.newContext({ viewport: { width: 1280, height: 800 }, timezoneId: "Asia/Kolkata" });
+    await ctx.addInitScript(([p, sd]) => { if (!localStorage.getItem("ps2:prefs")) { localStorage.setItem("ps2:prefs", p); for (const k in sd) localStorage.setItem(k, sd[k]); } }, [PREFS, seed || {}]); p = await ctx.newPage(); watch(p); };
+  await fresh();
+  let r = [await rvisit(day(0) + "T10:00:00+05:30"), await rvisit(day(0) + "T22:00:00+05:30"), await rvisit(day(3) + "T09:00:00+05:30"), await rvisit(day(5) + "T09:00:00+05:30"), await rvisit(day(12) + "T09:00:00+05:30")];
+  ok(r.join("|") === "retention/new-player||retention/d7-return||", "new player: new-player on day 1 only, d7-return once on the first return (day 4), never again: " + r.join("|"));
+  ok(JSON.stringify(await p.evaluate(() => JSON.parse(localStorage.getItem("ps2:days")))) === JSON.stringify({ first: day(0), start: day(12), last: day(12), np: 1, d7: 1 }), "stored: dates + np/d7 marks only");
+  await ctx.close();
+  for (const [gap, want] of [[1, "retention/d7-return"], [7, "retention/d7-return"], [8, ""]]) {
+    await fresh(); await rvisit(day(0) + "T23:50:00+05:30"); const g = await rvisit(day(gap) + "T00:10:00+05:30"); const later = await rvisit(day(gap + 1) + "T12:00:00+05:30");
+    ok(g === want && later === "", `first return ${gap} day(s) after the first visit: ${g || "no d7-return"}${later ? " (then " + later + ")" : ""}`); await ctx.close();
+  }
+  await fresh(); await rvisit(day(5) + "T10:00:00+05:30"); r = await rvisit(day(2) + "T10:00:00+05:30"); ok(r === "", "clock set back before the first day: no d7-return (" + r + ")"); await ctx.close();
+  await fresh({ "ps2:levels": JSON.stringify({ unlocked: 6, stars: { 1: 3 }, best: {}, hints: 3, mile: [], tips: [], v: 8 }) });
+  r = [await rvisit(day(0) + "T10:00:00+05:30"), await rvisit(day(2) + "T10:00:00+05:30")];
+  ok(r.join("|") === "|", "an older save without dates is not a new player and never sends d7-return: " + r.join("|")); await ctx.close();
+  await fresh({ "ps2:days": JSON.stringify({ first: day(0), start: day(0), last: day(0) }) });
+  r = await rvisit(day(2) + "T10:00:00+05:30"); ok(r === "", "a v11 device (dates but no new-player mark) is left out of the rate: " + (r || "nothing")); await ctx.close();
+  await fresh({ "ps2:levels": JSON.stringify({ unlocked: 6, stars: {}, best: {}, hints: 3, mile: [], tips: [], v: 8, login: { last: "2026-11-07", day: 2, streak: 2, best: 2 } }) });
+  r = await rvisit("2026-11-08T10:00:00+05:30"); ok(r === "", "an existing player (gift date known) is not a new player: " + (r || "nothing")); await ctx.close();
 
   // ---- 2. share texts and events ----
   ctx = await b.newContext({ viewport: { width: 1280, height: 800 } });
@@ -117,6 +140,21 @@ async function solve(p) {
     const sent = await p.evaluate(() => window.__gc ? window.__gc.map(o => o.path) : null);
     if (!gpc) ok(sent && ["event/share/arrival", "event/returning", "event/streak/day-1"].every(x => sent.includes(x)) && !sent.some(x => /ref=|\?/.test(x)), "sent: " + (sent || []).join(", "));
     else ok(sent === null, "Global Privacy Control: GoatCounter never loads, no share/return events sent");
+    await ctx.close();
+  }
+  // a brand-new device on the real (stubbed) analytics path: new-player, then d7-return 2 days later; nothing under GPC
+  for (const gpc of [false, true]) {
+    ctx = await b.newContext({ viewport: { width: 412, height: 915 }, timezoneId: "Asia/Kolkata" });
+    await ctx.route("https://gc.zgo.at/count.js", r => r.fulfill({ contentType: "text/javascript", body: STUB }));
+    await ctx.addInitScript(([p, gpc]) => { if (!localStorage.getItem("ps2:prefs")) localStorage.setItem("ps2:prefs", p); if (gpc) Object.defineProperty(Navigator.prototype, "globalPrivacyControl", { get: () => true }); }, [PREFS, gpc]);
+    const got = [];
+    for (const iso of ["2026-11-03T10:00:00+05:30", "2026-11-05T10:00:00+05:30"]) {
+      await ctx.clock.setFixedTime(new Date(iso)); p = await ctx.newPage(); watch(p);
+      await p.goto(`http://paneslide.test:${port}/?tutorial=0`); await p.waitForTimeout(5800);
+      got.push(await p.evaluate(() => window.__gc ? window.__gc.map(o => o.path).filter(x => /retention/.test(x)).join() : null)); await p.close();
+    }
+    if (!gpc) ok(got.join("|") === "event/retention/new-player|event/retention/d7-return", "sent to GoatCounter: " + got.join(" | "));
+    else ok(got.every(x => x === null), "GPC: retention events never sent (GoatCounter not loaded)");
     await ctx.close();
   }
   ok(!errs.length, "no console errors, page errors or failed requests " + errs.slice(0, 5).join(" | "));

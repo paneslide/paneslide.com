@@ -15,6 +15,8 @@ Static site: no server, no accounts. To host it, publish this folder on GitHub P
 
 - The site lives in the repo **paneslide/paneslide.com** (GitHub Pages, `CNAME` file = `paneslide.com`, HTTPS enforced). The old repo **paneslide/paneslide.github.io** is only a bridge: every old address sends players to the same path on paneslide.com. It is built by `node tools/build-bridge.js <folder>` and has NO custom domain.
 - The bridge packs the old save into the usual progress code and adds `#import=<code>` (only when a save exists). `js/migrate.js` (loaded before the game on every page) imports it only if this device has no save yet, removes the `#import` from the address, shows "Your progress moved over" and counts `event/migrated`. An existing save is never overwritten.
+- **Sitemap dates:** `node tools/build-site.js` gives every page in `sitemap.xml` its own `<lastmod>` (IST date): the newer of its source file's last git commit and the last commit in which the built page's content changed (template changes count only if the page content changed; asset-version bumps don't). Uncommitted changes count as today. Check with `node tools/test-sitemap.js`.
+- **7-day return rate:** `retention/new-player` (once per device, first visit) and `retention/d7-return` (once per device, first return 1–7 days after the first visit). Rate = d7-return ÷ new-player in GoatCounter (see the privacy page).
 - The bridge's `sw.js` deletes the old caches and unregisters itself, so installed apps reach the bridge and move over.
 - Test: `PW=$(npm root -g)/playwright-core node tools/test-migration.js` (local copy of both sites, host names mapped to this computer).
 

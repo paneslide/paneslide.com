@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://paneslide.com/</loc><lastmod>2026-10-29</lastmod><priority>1.0</priority></url>
+  <url><loc>https://paneslide.com/</loc><lastmod>2026-10-30</lastmod><priority>1.0</priority></url>
   <url><loc>https://paneslide.com/how-to-play/</loc><lastmod>2026-10-29</lastmod><priority>0.9</priority></url>
   <url><loc>https://paneslide.com/guides/</loc><lastmod>2026-10-29</lastmod><priority>0.8</priority></url>
   <url><loc>https://paneslide.com/guides/how-panes-move/</loc><lastmod>2026-10-29</lastmod><priority>0.7</priority></url>
@@ -34,7 +34,7 @@
   <url><loc>https://paneslide.com/guides/why-glass-is-coloured/</loc><lastmod>2026-10-29</lastmod><priority>0.7</priority></url>
   <url><loc>https://paneslide.com/guides/stained-glass-history/</loc><lastmod>2026-10-29</lastmod><priority>0.7</priority></url>
   <url><loc>https://paneslide.com/guides/colour-vision/</loc><lastmod>2026-10-29</lastmod><priority>0.7</priority></url>
-  <url><loc>https://paneslide.com/guides/install-offline-progress/</loc><lastmod>2026-10-29</lastmod><priority>0.7</priority></url>
+  <url><loc>https://paneslide.com/guides/install-offline-progress/</loc><lastmod>2026-10-30</lastmod><priority>0.7</priority></url>
   <url><loc>https://paneslide.com/guides/keyboard-and-mouse/</loc><lastmod>2026-10-29</lastmod><priority>0.7</priority></url>
   <url><loc>https://paneslide.com/guides/accessibility/</loc><lastmod>2026-10-29</lastmod><priority>0.7</priority></url>
   <url><loc>https://paneslide.com/guides/puzzle-types-compared/</loc><lastmod>2026-10-29</lastmod><priority>0.7</priority></url>
@@ -44,8 +44,8 @@
   <url><loc>https://paneslide.com/guides/glossary/</loc><lastmod>2026-10-29</lastmod><priority>0.7</priority></url>
   <url><loc>https://paneslide.com/archive/</loc><lastmod>2026-10-29</lastmod><priority>0.7</priority></url>
   <url><loc>https://paneslide.com/about/</loc><lastmod>2026-10-29</lastmod><priority>0.6</priority></url>
-  <url><loc>https://paneslide.com/whats-new/</loc><lastmod>2026-10-29</lastmod><priority>0.5</priority></url>
+  <url><loc>https://paneslide.com/whats-new/</loc><lastmod>2026-10-30</lastmod><priority>0.5</priority></url>
   <url><loc>https://paneslide.com/contact/</loc><lastmod>2026-10-29</lastmod><priority>0.4</priority></url>
-  <url><loc>https://paneslide.com/privacy/</loc><lastmod>2026-10-29</lastmod><priority>0.4</priority></url>
-  <url><loc>https://paneslide.com/terms/</loc><lastmod>2026-10-29</lastmod><priority>0.3</priority></url>
+  <url><loc>https://paneslide.com/privacy/</loc><lastmod>2026-10-31</lastmod><priority>0.4</priority></url>
+  <url><loc>https://paneslide.com/terms/</loc><lastmod>2026-10-30</lastmod><priority>0.3</priority></url>
 </urlset>
